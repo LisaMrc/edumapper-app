@@ -45,10 +45,21 @@ const axes = computed(() => {
 const hasAxes = computed(
   () => axes.value.languages.length > 0 || axes.value.hasApprenticeship || axes.value.tracks.length > 0
 )
+
+const popover = ref<{ open: () => void } | null>(null)
 </script>
 
 <template>
-  <article class="card" :aria-label="program.title">
+  <ProgramPopover ref="popover" :program="program" />
+  <article
+    class="card card--clickable"
+    :aria-label="program.title"
+    role="button"
+    tabindex="0"
+    @click="popover?.open()"
+    @keydown.enter="popover?.open()"
+    @keydown.space.prevent="popover?.open()"
+  >
 
     <!-- Header -->
     <div class="card__header">
@@ -178,6 +189,16 @@ const hasAxes = computed(
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display: inline;
+}
+
+.card--clickable {
+  cursor: pointer;
+}
+
+.card--clickable:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .card__cities {
