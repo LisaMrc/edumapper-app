@@ -1,65 +1,115 @@
 <script setup lang="ts">
 import type { EduGeneric } from '../../server/utils/programs'
 
-defineProps<{
+const props = defineProps<{
   program: EduGeneric
 }>()
+
+// Aggregate all unique cities across generic + variants
+const cities = computed(() => {
+  const seen = new Set<string>()
+  const result: string[] = []
+
+  const add = (city: string) => {
+    if (city && !seen.has(city)) {
+      seen.add(city)
+      result.push(city)
+    }
+  }
+
+  add(props.program.city)
+  for (const v of props.program.variants) add(v.city)
+
+  return result
+})
+
+// Aggregate unique values per axis across all variants
+const axes = computed(() => {
+  const languages = new Set<string>()
+  let hasApprenticeship = false
+  const tracks = new Set<string>()
+
+  for (const v of props.program.variants) {
+    if (v.axes.language) languages.add(v.axes.language)
+    if (v.axes.apprenticeship) hasApprenticeship = true
+    if (v.axes.track) tracks.add(v.axes.track)
+  }
+
+  return {
+    languages: [...languages],
+    hasApprenticeship,
+    tracks: [...tracks],
+  }
+})
+
+const hasAxes = computed(
+  () => axes.value.languages.length > 0 || axes.value.hasApprenticeship || axes.value.tracks.length > 0
+)
 </script>
 
 <template>
   <article class="card" :aria-label="program.title">
+
     <!-- Header -->
     <div class="card__header">
-      <div class="card__meta">
-        <span class="card__diploma">{{ program.diploma }}</span>
-        <span class="card__sep" aria-hidden="true">·</span>
-        <span class="card__field">{{ program.field }}</span>
-      </div>
       <h2 class="card__title">{{ program.title }}</h2>
-      <div class="card__location">
-        <span class="card__school">{{ program.school_title }}</span>
-        <span class="card__sep" aria-hidden="true">·</span>
-        <span class="card__city">{{ program.city }}</span>
+      <div class="card__school-info">
+        <span class="card__school-group">{{ program.school_group }}</span>
+        <div class="card__cities">
+          <svg class="card__pin" aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M6 1C4.067 1 2.5 2.567 2.5 4.5c0 2.625 3.5 6.5 3.5 6.5s3.5-3.875 3.5-6.5C9.5 2.567 7.933 1 6 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            <circle cx="6" cy="4.5" r="1.25" fill="currentColor"/>
+          </svg>
+          <span class="card__cities-list">
+            <template v-for="(city, i) in cities" :key="city">
+              <span>{{ city }}</span>
+              <span v-if="i < cities.length - 1" class="card__dot" aria-hidden="true">·</span>
+            </template>
+          </span>
+        </div>
       </div>
     </div>
 
-    <!-- Variants -->
-    <div v-if="program.variants.length > 0" class="card__variants">
-      <p class="card__variants-label">
-        {{ program.variants.length }} variante{{ program.variants.length > 1 ? 's' : '' }}
-      </p>
-      <ul class="card__variants-list" role="list">
-        <li
-          v-for="variant in program.variants"
-          :key="variant.program_id"
-          class="card__variant"
-        >
-          <span class="card__variant-title">{{ variant.short_title }}</span>
-          <div class="card__variant-axes">
-            <VariantBadge
-              v-if="variant.axes.language"
-              axis="language"
-              :value="variant.axes.language"
-            />
-            <VariantBadge
-              v-if="variant.axes.apprenticeship"
-              axis="apprenticeship"
-              value="true"
-            />
-            <VariantBadge
-              v-if="variant.axes.track"
-              axis="track"
-              :value="variant.axes.track"
-            />
-            <VariantBadge
-              v-if="variant.axes.campus"
-              axis="campus"
-              :value="variant.axes.campus"
-            />
-          </div>
-        </li>
-      </ul>
+    <!-- Grouped axes -->
+    <div v-if="program.variants.length > 0 && hasAxes" class="card__axes">
+      <div class="card__meta">
+        <span class="card__tag">{{ program.diploma }}</span>
+        <span class="card__tag">{{ program.field }}</span>
+      </div>
+
+      <div v-if="axes.languages.length > 0" class="card__axis">
+        <span class="card__axis-label">Langues</span>
+        <div class="card__axis-badges">
+          <VariantBadge
+            v-for="lang in axes.languages"
+            :key="lang"
+            axis="language"
+            :value="lang"
+          />
+        </div>
+      </div>
+
+      <div v-if="axes.hasApprenticeship" class="card__axis">
+        <span class="card__axis-label">Modalité</span>
+        <div class="card__axis-badges">
+          <VariantBadge axis="apprenticeship" value="true" />
+        </div>
+      </div>
+
+      <div v-if="axes.tracks.length > 0" class="card__axis">
+        <span class="card__axis-label">Tracks</span>
+        <div class="card__axis-badges">
+          <VariantBadge
+            v-for="track in axes.tracks"
+            :key="track"
+            axis="track"
+            :value="track"
+          />
+        </div>
+      </div>
+
     </div>
+
   </article>
 </template>
 
@@ -82,89 +132,108 @@ defineProps<{
 }
 
 /* Header */
+.card__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+}
+
 .card__meta {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  flex-wrap: wrap;
+  gap: var(--space-1);
   margin-bottom: var(--space-2);
+}
+
+.card__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-skeleton);
+  color: var(--color-text-muted);
 }
 
 .card__sep {
   color: var(--color-border);
 }
 
-.card__diploma {
-  font-weight: var(--font-weight-medium);
+.card__school-info {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.card__school-group {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   background: var(--color-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.card__title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
-  color: var(--color-text);
-}
-
-.card__location {
+.card__cities {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  margin-top: var(--space-1);
 }
 
-/* Variants section */
-.card__variants {
+.card__pin {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.card__cities-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.card__dot {
+  color: var(--color-text-muted);
+  margin: 0 1px;
+}
+
+/* Axes */
+.card__axes {
   border-top: 1px solid var(--color-border);
   padding-top: var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  margin-top: auto;
 }
 
-.card__variants-label {
+.card__axis {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.card__axis-label {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
-}
-
-.card__variants-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  list-style: none;
-}
-
-.card__variant {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
-.card__variant-title {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  width: 56px;
   flex-shrink: 0;
-  min-width: 0;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.card__variant-axes {
+.card__axis-badges {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
-  flex-shrink: 0;
 }
 </style>
