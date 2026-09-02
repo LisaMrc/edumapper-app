@@ -5,22 +5,23 @@ const props = defineProps<{
   program: EduGeneric
 }>()
 
-// Aggregate all unique cities across generic + variants
-const cities = computed(() => {
-  const seen = new Set<string>()
-  const result: string[] = []
+// Group cities by school group across generic + variants
+const locationGroups = computed(() => {
+  const map = new Map<string, Set<string>>()
 
-  const add = (city: string) => {
-    if (city && !seen.has(city)) {
-      seen.add(city)
-      result.push(city)
-    }
+  const add = (group: string, city: string) => {
+    if (!group) return
+    if (!map.has(group)) map.set(group, new Set())
+    if (city) map.get(group)!.add(city)
   }
 
-  add(props.program.city)
-  for (const v of props.program.variants) add(v.city)
+  add(props.program.school_group, props.program.city)
+  for (const v of props.program.variants) add(v.school_group, v.city)
 
-  return result
+  return [...map.entries()].map(([group, cities]) => ({
+    group,
+    cities: [...cities],
+  }))
 })
 
 // Aggregate unique values per axis across all variants
@@ -65,18 +66,24 @@ const popover = ref<{ open: () => void } | null>(null)
     <div class="card__header">
       <h2 class="card__title">{{ program.title }}</h2>
       <div class="card__school-info">
-        <span class="card__school-group">{{ program.school_group }}</span>
-        <div class="card__cities">
-          <svg class="card__pin" aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M6 1C4.067 1 2.5 2.567 2.5 4.5c0 2.625 3.5 6.5 3.5 6.5s3.5-3.875 3.5-6.5C9.5 2.567 7.933 1 6 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
-            <circle cx="6" cy="4.5" r="1.25" fill="currentColor"/>
-          </svg>
-          <span class="card__cities-list">
-            <template v-for="(city, i) in cities" :key="city">
-              <span>{{ city }}</span>
-              <span v-if="i < cities.length - 1" class="card__dot" aria-hidden="true">·</span>
-            </template>
-          </span>
+        <div
+          v-for="loc in locationGroups"
+          :key="loc.group"
+          class="card__location-group"
+        >
+          <span class="card__school-group">{{ loc.group }}</span>
+          <div class="card__cities">
+            <svg class="card__pin" aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1C4.067 1 2.5 2.567 2.5 4.5c0 2.625 3.5 6.5 3.5 6.5s3.5-3.875 3.5-6.5C9.5 2.567 7.933 1 6 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+              <circle cx="6" cy="4.5" r="1.25" fill="currentColor"/>
+            </svg>
+            <span class="card__cities-list">
+              <template v-for="(city, i) in loc.cities" :key="city">
+                <span>{{ city }}</span>
+                <span v-if="i < loc.cities.length - 1" class="card__dot" aria-hidden="true">·</span>
+              </template>
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -177,7 +184,13 @@ const popover = ref<{ open: () => void } | null>(null)
   margin-top: var(--space-2);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
+}
+
+.card__location-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .card__school-group {

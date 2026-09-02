@@ -5,6 +5,21 @@ const props = defineProps<{
   program: EduGeneric
 }>()
 
+const locationGroups = computed(() => {
+  const map = new Map<string, Set<string>>()
+
+  const add = (group: string, city: string) => {
+    if (!group) return
+    if (!map.has(group)) map.set(group, new Set())
+    if (city) map.get(group)!.add(city)
+  }
+
+  add(props.program.school_group, props.program.city)
+  for (const v of props.program.variants) add(v.school_group, v.city)
+
+  return [...map.entries()].map(([group, cities]) => ({ group, cities: [...cities] }))
+})
+
 const dialog = ref<HTMLDialogElement | null>(null)
 
 function open() {
@@ -49,7 +64,27 @@ defineExpose({ open })
           </button>
         </div>
 
-        <div class="popover__school-group">{{ program.school_group }}</div>
+        <div class="popover__locations">
+          <div
+            v-for="loc in locationGroups"
+            :key="loc.group"
+            class="popover__location-group"
+          >
+            <span class="popover__school-group">{{ loc.group }}</span>
+            <div class="popover__cities">
+              <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M6 1C4.067 1 2.5 2.567 2.5 4.5c0 2.625 3.5 6.5 3.5 6.5s3.5-3.875 3.5-6.5C9.5 2.567 7.933 1 6 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+                <circle cx="6" cy="4.5" r="1.25" fill="currentColor"/>
+              </svg>
+              <span class="popover__cities-list">
+                <template v-for="(city, i) in loc.cities" :key="city">
+                  <span>{{ city }}</span>
+                  <span v-if="i < loc.cities.length - 1" class="popover__dot" aria-hidden="true">·</span>
+                </template>
+              </span>
+            </div>
+          </div>
+        </div>
 
         <div class="popover__meta">
           <span class="popover__tag">{{ program.diploma }}</span>
@@ -87,7 +122,6 @@ defineExpose({ open })
               <VariantBadge v-if="variant.axes.language" axis="language" :value="variant.axes.language" />
               <VariantBadge v-if="variant.axes.apprenticeship" axis="apprenticeship" value="true" />
               <VariantBadge v-if="variant.axes.track" axis="track" :value="variant.axes.track" />
-              <VariantBadge v-if="variant.axes.campus" axis="campus" :value="variant.axes.campus" />
             </div>
           </li>
         </ul>
@@ -180,6 +214,19 @@ defineExpose({ open })
   outline-offset: 1px;
 }
 
+.popover__locations {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.popover__location-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .popover__school-group {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
@@ -189,7 +236,26 @@ defineExpose({ open })
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: var(--space-2);
+}
+
+.popover__cities {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.popover__cities-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.popover__dot {
+  color: var(--color-text-muted);
+  margin: 0 1px;
 }
 
 .popover__meta {

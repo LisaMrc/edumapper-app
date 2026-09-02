@@ -19,6 +19,7 @@ export interface EduVariant {
   title: string
   school_id: string
   school_title: string
+  school_group: string
   city: string
   axes: VariantAxes
 }
@@ -193,6 +194,7 @@ export function loadPrograms(): EduGeneric[] {
         title: row.title,
         school_id: row.school_id,
         school_title: schoolInfo?.title ?? row.school_id,
+        school_group: resolveSchoolGroup(row.school_id, schools),
         city: schoolInfo?.city ?? '',
         axes,
       })
