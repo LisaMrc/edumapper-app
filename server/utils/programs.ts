@@ -18,6 +18,8 @@ export interface EduVariant {
   short_title: string
   title: string
   school_id: string
+  school_title: string
+  city: string
   axes: VariantAxes
 }
 
@@ -30,6 +32,7 @@ export interface EduGeneric {
   city: string
   school_id: string
   school_title: string
+  school_group: string
   variants: EduVariant[]
 }
 
@@ -37,17 +40,34 @@ export interface EduGeneric {
 // School index
 // ---------------------------------------------------------------------------
 
-function loadSchools(): Map<string, string> {
+interface SchoolInfo { title: string; city: string; parent_school_id: string }
+
+function loadSchools(): Map<string, SchoolInfo> {
   const raw = readFileSync(
     resolve(process.cwd(), 'PRD-015/edu_school.csv'),
     'utf-8',
   )
   const rows = parseCSV(raw)
-  const map = new Map<string, string>()
+  const map = new Map<string, SchoolInfo>()
   for (const row of rows) {
-    if (row.school_id) map.set(row.school_id, row.short_title)
+    if (row.school_id) {
+      map.set(row.school_id, {
+        title: row.short_title,
+        city: row.city,
+        parent_school_id: row.parent_school_id,
+      })
+    }
   }
   return map
+}
+
+function resolveSchoolGroup(school_id: string, schools: Map<string, SchoolInfo>): string {
+  const school = schools.get(school_id)
+  if (!school) return ''
+  if (school.parent_school_id) {
+    return schools.get(school.parent_school_id)?.title ?? school.title
+  }
+  return school.title
 }
 
 // ---------------------------------------------------------------------------
@@ -139,9 +159,10 @@ export function loadPrograms(): EduGeneric[] {
         title: row.title,
         diploma: row.diploma,
         field: row.field,
-        city: row.city,
+        city: schools.get(row.school_id)?.city ?? row.city,
         school_id: row.school_id,
-        school_title: schools.get(row.school_id) ?? row.school_id,
+        school_title: schools.get(row.school_id)?.title ?? row.school_id,
+        school_group: resolveSchoolGroup(row.school_id, schools),
         variants: [],
       })
     } else {
@@ -160,8 +181,10 @@ export function loadPrograms(): EduGeneric[] {
 
     // Resolve campus school_id from axes to a readable name
     if (axes.campus) {
-      axes.campus = schools.get(axes.campus) ?? axes.campus
+      axes.campus = schools.get(axes.campus)?.title ?? axes.campus
     }
+
+    const schoolInfo = schools.get(row.school_id)
 
     if (parent) {
       parent.variants.push({
@@ -169,6 +192,8 @@ export function loadPrograms(): EduGeneric[] {
         short_title: row.short_title,
         title: row.title,
         school_id: row.school_id,
+        school_title: schoolInfo?.title ?? row.school_id,
+        city: schoolInfo?.city ?? '',
         axes,
       })
     } else {
@@ -180,9 +205,10 @@ export function loadPrograms(): EduGeneric[] {
         title: row.title,
         diploma: row.diploma,
         field: row.field,
-        city: row.city,
+        city: schoolInfo?.city ?? row.city,
         school_id: row.school_id,
-        school_title: schools.get(row.school_id) ?? row.school_id,
+        school_title: schoolInfo?.title ?? row.school_id,
+        school_group: resolveSchoolGroup(row.school_id, schools),
         variants: [],
       })
     }
