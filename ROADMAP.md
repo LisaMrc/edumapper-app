@@ -50,9 +50,9 @@
 - [x] `useHead` — title de page
 
 ## ÉTAPE 11 — Déploiement
-- [ ] Push sur GitHub (repo public)
-- [ ] Déploiement Vercel / Netlify / Cloudflare
-- [ ] URL publique à partager
+- [x] Push sur GitHub (repo public)
+- [x] Déploiement Vercel / Netlify / Cloudflare
+- [x] URL publique à partager
 
 ## ÉTAPE 12 — Notes écrites (livrable)
-- [ ] `NOTES.md` — 5 à 8 lignes : choix techniques, ce qui n'a pas été fait, usage de Claude
+- [x] `NOTES.md` — 5 à 8 lignes : choix techniques, ce qui n'a pas été fait, usage de Claude
