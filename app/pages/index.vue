@@ -163,26 +163,21 @@ const { query, programs, pending, error } = usePrograms()
 /* Grid */
 .grid {
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: stretch;
   gap: var(--space-4);
   list-style: none;
 }
 
-@media (min-width: 900px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.grid > li {
+  display: flex;
 }
 
 /* ── Skeletons ─────────────────────────────────── */
 .skeletons {
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-4);
-}
-
-@media (min-width: 900px) {
-  .skeletons {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 .skeleton-card {

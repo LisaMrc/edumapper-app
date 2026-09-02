@@ -72,6 +72,8 @@ defineProps<{
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  width: 100%;
+  height: 100%;
   transition: box-shadow var(--transition-base);
 }
 
