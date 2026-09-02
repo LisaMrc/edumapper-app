@@ -150,6 +150,7 @@ defineExpose({ open })
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  animation: backdrop-in 0.2s ease forwards;
 }
 
 /* Panel */
@@ -166,6 +167,22 @@ defineExpose({ open })
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.16);
   display: flex;
   flex-direction: column;
+  animation: panel-in 0.22s cubic-bezier(0.34, 1.26, 0.64, 1) forwards;
+}
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.97); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover__panel { animation: none; }
+  .popover::backdrop { animation: none; }
 }
 
 /* Identity section */

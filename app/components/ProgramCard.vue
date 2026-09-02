@@ -62,6 +62,11 @@ const popover = ref<{ open: () => void } | null>(null)
     @keydown.space.prevent="popover?.open()"
   >
 
+    <!-- Hover overlay -->
+    <div class="card__overlay" aria-hidden="true">
+      <span class="card__overlay-label">En savoir plus</span>
+    </div>
+
     <!-- Header -->
     <div class="card__header">
       <h2 class="card__title">{{ program.title }}</h2>
@@ -133,6 +138,7 @@ const popover = ref<{ open: () => void } | null>(null)
 
 <style scoped>
 .card {
+  position: relative;
   background: var(--color-surface-raised);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
@@ -212,6 +218,42 @@ const popover = ref<{ open: () => void } | null>(null)
 .card--clickable:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+/* Hover overlay */
+.card__overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    to top,
+    rgba(247, 50, 165, 1) 0%,
+    rgba(255, 114, 63, 0.85) 50%,
+    rgba(255, 114, 63, 0) 100%
+  );
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: var(--space-4);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+.card:hover .card__overlay {
+  opacity: 1;
+}
+
+.card__overlay-label {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: white;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card__overlay { transition: none; }
 }
 
 .card__cities {
