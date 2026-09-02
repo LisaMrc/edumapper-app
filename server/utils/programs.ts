@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { parseCSV } from './parseCSV'
+import schoolRows from '../data/schools.json'
+import programRows from '../data/programs.json'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -44,13 +43,8 @@ export interface EduGeneric {
 interface SchoolInfo { title: string; city: string; parent_school_id: string }
 
 function loadSchools(): Map<string, SchoolInfo> {
-  const raw = readFileSync(
-    resolve(process.cwd(), 'PRD-015/edu_school.csv'),
-    'utf-8',
-  )
-  const rows = parseCSV(raw)
   const map = new Map<string, SchoolInfo>()
-  for (const row of rows) {
+  for (const row of schoolRows as Record<string, string>[]) {
     if (row.school_id) {
       map.set(row.school_id, {
         title: row.short_title,
@@ -131,11 +125,7 @@ export function loadPrograms(): EduGeneric[] {
 
   const schools = loadSchools()
 
-  const raw = readFileSync(
-    resolve(process.cwd(), 'PRD-015/edu_program.csv'),
-    'utf-8',
-  )
-  const rows = parseCSV(raw)
+  const rows = programRows as Record<string, string>[]
 
   // 1. Deduplicate on program_id — keep first occurrence
   const seen = new Set<string>()
