@@ -21,7 +21,7 @@ const { query, programs, pending, error } = usePrograms()
     </div>
 
     <!-- Main -->
-    <main class="main" id="results" aria-live="polite" aria-busy="pending">
+    <main class="main" id="results" aria-live="polite" :aria-busy="pending">
 
       <!-- Loading -->
       <div v-if="pending" class="skeletons" aria-label="Chargement des formations…">
