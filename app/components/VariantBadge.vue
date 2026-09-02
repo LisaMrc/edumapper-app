@@ -7,19 +7,13 @@ const props = defineProps<{
 }>()
 
 const LANGUAGE_LABEL: Record<string, string> = {
-  en: 'EN',
-  it: 'IT',
-  fr: 'FR',
-}
-
-const LANGUAGE_ICON: Record<string, string> = {
-  en: '🇬🇧',
-  it: '🇮🇹',
-  fr: '🇫🇷',
+  en: 'Cursus en Anglais',
+  it: 'Cursus en Italien',
+  fr: 'Cursus en Français',
 }
 
 const label = computed(() => {
-  if (props.axis === 'language') return LANGUAGE_LABEL[props.value] ?? props.value.toUpperCase()
+  if (props.axis === 'language') return LANGUAGE_LABEL[props.value] ?? `Cursus en ${props.value}`
   if (props.axis === 'apprenticeship') return 'Alternance'
   if (props.axis === 'track') return props.value
   if (props.axis === 'campus') return props.value
@@ -27,7 +21,7 @@ const label = computed(() => {
 })
 
 const icon = computed(() => {
-  if (props.axis === 'language') return LANGUAGE_ICON[props.value] ?? '🌐'
+  if (props.axis === 'language') return null
   if (props.axis === 'apprenticeship') return '⚙️'
   if (props.axis === 'track') return '◆'
   if (props.axis === 'campus') return '📍'
@@ -52,7 +46,7 @@ const axisLabel = computed(() => {
     :title="`${axisLabel} : ${label}`"
     :aria-label="`${axisLabel} : ${label}`"
   >
-    <span class="badge__icon" aria-hidden="true">{{ icon }}</span>
+    <span v-if="icon" class="badge__icon" aria-hidden="true">{{ icon }}</span>
     <span class="badge__label">{{ label }}</span>
   </span>
 </template>
