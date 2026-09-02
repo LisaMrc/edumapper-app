@@ -14,24 +14,45 @@
 - [x] `app/assets/css/tokens.css` → variables CSS Edumapper
 
 ## ÉTAPE 4 — Composants ✅
-- [x] `VariantBadge.vue` — axe individuel : EN, Alternance, Red Team…
-- [x] `ProgramCard.vue` — générique + liste de variantes
-- [x] `SearchBar.vue` — input + filtres secondaires
+- [x] `VariantBadge.vue` — axe individuel : Cursus en Anglais, Alternance, Red Team…
+- [x] `ProgramCard.vue` — générique + axes groupés + overlay hover
+- [x] `SearchBar.vue` — input + clear button
 
 ## ÉTAPE 5 — Page & composable ✅
-- [x] `usePrograms.ts` — fetch + search réactif client-side
+- [x] `usePrograms.ts` — fetch + search réactif client-side (debounce 250ms)
 - [x] `pages/index.vue` — assemblage final
 
 ## ÉTAPE 6 — États invisibles ✅
-- [x] Loading (skeleton animé)
+- [x] Loading (skeleton animé, prefers-reduced-motion)
 - [x] Empty (no results)
 - [x] Error (API fail)
+- [x] `aria-live`, `aria-busy`, `role="alert"`, focus clavier
 
 ## ÉTAPE 7 — Layout sidebar + navbar ✅
 - [x] Volet vertical gauche (brand / sidebar)
-- [x] Navbar sticky en haut (search bar)
-- [x] Main content à droite
+- [x] Navbar sticky en haut (search bar, frosted glass)
+- [x] Grille 3 colonnes, cartes même hauteur
 
-## ÉTAPE 8 — Corrections architecture
-- [ ] Extraire les types partagés hors de `server/` → `app/types/programs.ts`
+## ÉTAPE 8 — Affichage école & localisation ✅
+- [x] Résolution groupe école via `parent_school_id`
+- [x] `school_group` exposé sur générique et variante
+- [x] Groupage villes par groupe école sur la carte et le popover
+- [x] `useLocationGroups` composable centralisé
+
+## ÉTAPE 9 — Popover ✅
+- [x] `ProgramPopover.vue` — dialog natif (Escape, backdrop, focus trap)
+- [x] Toutes les cartes cliquables (avec ou sans variantes)
+- [x] Animation fade + scale à l'ouverture
+
+## ÉTAPE 10 — Architecture & centralisation ✅
+- [x] `app/types/programs.ts` — types hors de `server/`
+- [x] `useLocationGroups.ts` — logique dédupliquée
 - [x] `useHead` — title de page
+
+## ÉTAPE 11 — Déploiement
+- [ ] Push sur GitHub (repo public)
+- [ ] Déploiement Vercel / Netlify / Cloudflare
+- [ ] URL publique à partager
+
+## ÉTAPE 12 — Notes écrites (livrable)
+- [ ] `NOTES.md` — 5 à 8 lignes : choix techniques, ce qui n'a pas été fait, usage de Claude

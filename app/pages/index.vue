@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { query, programs, pending, error } = usePrograms()
+const { query, programs, sortKey, pending, error } = usePrograms()
 
 useHead({ title: 'Edumapper — Trouvez votre formation' })
 </script>
@@ -23,6 +23,7 @@ useHead({ title: 'Edumapper — Trouvez votre formation' })
       <header class="navbar">
         <div class="navbar__inner">
           <SearchBar v-model="query" />
+          <SortBar v-model="sortKey" />
         </div>
       </header>
 
@@ -148,6 +149,9 @@ useHead({ title: 'Edumapper — Trouvez votre formation' })
 
 .navbar__inner {
   max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 /* ── Main ──────────────────────────────────────── */
