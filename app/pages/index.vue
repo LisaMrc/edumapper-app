@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const { query, programs, pending, error } = usePrograms()
+
+useHead({ title: 'Edumapper — Trouvez votre formation' })
 </script>
 
 <template>

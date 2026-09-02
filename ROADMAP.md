@@ -34,4 +34,4 @@
 
 ## ÉTAPE 8 — Corrections architecture
 - [ ] Extraire les types partagés hors de `server/` → `app/types/programs.ts`
-- [ ] `useHead` — title de page
+- [x] `useHead` — title de page

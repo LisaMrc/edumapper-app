@@ -90,7 +90,7 @@ const hasAxes = computed(
       </div>
 
       <div v-if="axes.hasApprenticeship" class="card__axis">
-        <span class="card__axis-label">Modalité</span>
+        <span class="card__axis-label">Modalités</span>
         <div class="card__axis-badges">
           <VariantBadge axis="apprenticeship" value="true" />
         </div>
