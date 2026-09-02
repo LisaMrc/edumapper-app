@@ -18,6 +18,9 @@ logs
 .fleet
 .idea
 
+# Raw data (converted to server/data/*.json)
+PRD-015/
+
 # Local env files
 .env
 .env.*
