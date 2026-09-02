@@ -26,3 +26,12 @@
 - [x] Loading (skeleton animé)
 - [x] Empty (no results)
 - [x] Error (API fail)
+
+## ÉTAPE 7 — Layout sidebar + navbar ✅
+- [x] Volet vertical gauche (brand / sidebar)
+- [x] Navbar sticky en haut (search bar)
+- [x] Main content à droite
+
+## ÉTAPE 8 — Corrections architecture
+- [ ] Extraire les types partagés hors de `server/` → `app/types/programs.ts`
+- [ ] `useHead` — title de page
